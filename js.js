@@ -124,3 +124,82 @@ function canMove(cells){
         })
     })
 }
+
+document.addEventListener('touchstart', handleTouchStart, false);        
+document.addEventListener('touchmove', handleTouchMove, false);
+
+var xDown = null;                                                        
+var yDown = null;
+
+function getTouches(evt) {
+  return evt.touches ||             // browser API
+         evt.originalEvent.touches; // jQuery
+}                                                     
+                                                                         
+function handleTouchStart(evt) {
+    const firstTouch = getTouches(evt)[0];                                      
+    xDown = firstTouch.clientX;                                      
+    yDown = firstTouch.clientY;                                      
+};                                                
+                                                                         
+function handleTouchMove(evt) {
+    if ( ! xDown || ! yDown ) {
+        return;
+    }
+
+    var xUp = evt.touches[0].clientX;                                    
+    var yUp = evt.touches[0].clientY;
+
+    var xDiff = xDown - xUp;
+    var yDiff = yDown - yUp;
+                                                                         
+    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+        if ( xDiff < 0 ) {
+            /* right swipe */ 
+            if (!canMoveRight()) {
+                setupInput();
+                return;
+            }
+            moveRight();
+        } else {
+            /* left swipe */
+            if (!canMoveLeft()) {
+                setupInput();
+                return;
+            }
+            moveLeft();
+        }                       
+    } else {
+        if ( yDiff < 0 ) {
+            /* down swipe */
+            if (!canMoveDown()) {
+                setupInput();
+                return;
+            }
+            moveDown(); 
+        } else { 
+            /* up swipe */
+            if (!canMoveUp()) {
+                setupInput();
+                return;
+            }
+            moveUp();
+            
+        }                                                                 
+    }
+    grid.cells.forEach(cell => cell.mergeTiles());
+
+    const newTile = new Tile(gameBoard);
+    grid.randomEmptyCell().tile = newTile;
+
+    if (!canMoveUp() && !canMoveDown() && !canMoveLeft() && !canMoveRight()){
+        newTile.waitForTransition(true).then(() => {
+            alert("You Lose");
+        });
+        return;
+    };
+    setupInput();
+    /* reset values */
+    xDown = null;
+    yDown = null;                                             
+};
