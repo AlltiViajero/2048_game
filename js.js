@@ -195,6 +195,7 @@ function handleTouchMove(evt) {
     if (!canMoveUp() && !canMoveDown() && !canMoveLeft() && !canMoveRight()){
         newTile.waitForTransition(true).then(() => {
             alert("You Lose");
+            location.reload();
         });
         return;
     };
